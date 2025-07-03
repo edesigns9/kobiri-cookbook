@@ -17,12 +17,12 @@ const RecipeCard: React.FC<RecipeCardProps> = ({ recipe }) => {
   const detailUrl = `/recipe/${sourceForUrl}/${encodeURIComponent(recipe.id)}`;
   
   // Pass additional data through the link state to avoid API calls when possible
-  // For AI recipes, we pass the full recipe data
-  // For all recipes, we pass title and image to show a minimal view if details can't be loaded
+  // If we have full recipe data, pass it for any source type
+  // For all recipes, pass title and image to show a minimal view if details can't be loaded
   const linkState = {
     title: recipe.title,
     image: recipe.image,
-    ...(recipe.source === 'AI' && recipe.recipe ? { recipe: recipe.recipe } : {})
+    ...(recipe.recipe ? { recipe: recipe.recipe } : {})
   };
 
   return (

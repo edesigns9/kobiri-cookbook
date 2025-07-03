@@ -96,14 +96,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const toggleFavorite = useCallback(async (recipe: RecipeSummary): Promise<void> => {
     if (!user) {
       toast.error('Please log in to save recipes.');
+      console.log('No user logged in, cannot save recipe');
       return;
     }
 
+    console.log('Attempting to toggle favorite for:', recipe);
+    console.log('Current user:', user);
+
     const compositeId = `${recipe.source}-${recipe.id}`;
     const existingFavorite = favorites.find(fav => `${fav.source}-${fav.recipe_id}` === compositeId);
+    console.log('Composite ID:', compositeId);
+    console.log('Existing favorite:', existingFavorite);
 
     if (existingFavorite) {
       // Remove from favorites
+      console.log('Removing from favorites:', existingFavorite);
       const { error } = await supabase.from('favorites').delete().eq('id', existingFavorite.id);
       if (error) {
         toast.error('Could not remove from cookbook.');
@@ -111,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       } else {
         setFavorites(prev => prev.filter(f => f.id !== existingFavorite.id));
         toast.success(`Removed "${recipe.title}" from your cookbook.`);
+        console.log('Successfully removed from favorites');
       }
     } else {
       // Add to favorites
@@ -121,13 +129,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         title: recipe.title,
         image: recipe.image,
       };
+      console.log('Adding to favorites:', newFavorite);
+      
       const { data, error } = await supabase.from('favorites').insert([newFavorite]).select().single();
+      console.log('Supabase response:', { data, error });
+      
       if (error) {
         toast.error('Could not save to cookbook.');
         console.error('Error adding favorite:', error);
       } else {
         setFavorites(prev => [...prev, data]);
         toast.success(`Added "${recipe.title}" to your cookbook.`);
+        console.log('Successfully added to favorites');
       }
     }
   }, [user, favorites]);

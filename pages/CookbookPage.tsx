@@ -36,24 +36,55 @@ const CookbookPage: React.FC = () => {
         // 1. Fetch all user-created recipes from Supabase and static curated recipes.
         const kobiriRecipes = await getAllKobiriRecipes(user);
         
-        // 2. Determine which of the user's favorites are from KOBIRI source.
-        const kobiriRecipeIds = new Set(kobiriRecipes.map(r => r.id));
-        const favoriteKobiriSummaries = favorites
-          .filter(fav => fav.source === 'KOBIRI' && kobiriRecipeIds.has(String(fav.recipe_id)))
-          .map(fav => ({
-            id: String(fav.recipe_id),
-            title: fav.title,
-            image: fav.image,
-            source: fav.source,
-          }));
-
-        // 3. Get all other favorites (e.g., from THEMEALDB or AI).
-        const otherFavoriteSummaries = favorites.filter(fav => fav.source !== 'KOBIRI');
+        // 2. Create a lookup map for all Kobiri recipes
+        const kobiriRecipeMap = new Map<string, Recipe>();
+        kobiriRecipes.forEach(recipe => {
+          kobiriRecipeMap.set(String(recipe.id), recipe);
+        });
+        
+        // 3. Process favorites to ensure they have valid recipe references
+        const processedFavorites: RecipeSummary[] = [];
+        const seenRecipeIds = new Set<string>();
+        
+        // First process KOBIRI favorites
+        favorites.forEach(fav => {
+          // Create a unique ID to avoid duplicates
+          const uniqueId = `${fav.source}-${fav.recipe_id}`;
+          
+          // Skip if we've already processed this recipe
+          if (seenRecipeIds.has(uniqueId)) return;
+          
+          // For KOBIRI recipes, make sure they exist in our data
+          if (fav.source === 'KOBIRI') {
+            const recipe = kobiriRecipeMap.get(fav.recipe_id);
+            if (recipe) {
+              processedFavorites.push({
+                id: fav.recipe_id,
+                title: recipe.name, // Use actual recipe name from the data
+                image: recipe.imageUrl, // Use actual recipe image from the data
+                source: 'KOBIRI',
+                category: recipe.category,
+                // Include the full recipe data to avoid loading issues
+                recipe: recipe
+              });
+              seenRecipeIds.add(uniqueId);
+            }
+          } else {
+            // For other sources like THEMEALDB, keep as is
+            processedFavorites.push({
+              id: fav.recipe_id,
+              title: fav.title,
+              image: fav.image,
+              source: fav.source
+            });
+            seenRecipeIds.add(uniqueId);
+          }
+        });
         
         // 4. Set the state for the page to render.
         const userCreatedRecipes = kobiriRecipes.filter(r => !CURATED_RECIPES.some(cr => cr.id === r.id));
         setAllRecipes(userCreatedRecipes);
-        setFavoriteRecipes([...favoriteKobiriSummaries, ...otherFavoriteSummaries]);
+        setFavoriteRecipes(processedFavorites);
 
       } catch (err) {
         setError("Failed to load your cookbook. Please try again.");
@@ -112,8 +143,8 @@ const CookbookPage: React.FC = () => {
           </Button>
         </div>
         <p className="text-muted-foreground">
-          {favorites.length > 0
-            ? `You have ${favorites.length} saved recipe(s).`
+          {favoriteRecipes.length > 0
+            ? `You have ${favoriteRecipes.length} saved recipe(s).`
             : "Your cookbook is empty. Start exploring and save some recipes!"}
         </p>
       </section>

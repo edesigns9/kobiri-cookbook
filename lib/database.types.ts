@@ -46,6 +46,64 @@ export interface Database {
           }
         ]
       }
+      recipes: {
+        Row: {
+          id: string
+          created_at: string
+          user_id: string
+          name: string
+          description: string
+          image_url: string
+          prep_time?: string
+          cook_time?: string
+          servings?: string
+          difficulty?: string
+          category?: string
+          ingredients: Json
+          instructions: Json
+          source: "KOBIRI" | "THEMEALDB" | "AI"
+        }
+        Insert: {
+          id?: string
+          created_at?: string
+          user_id: string
+          name: string
+          description: string
+          image_url: string
+          prep_time?: string
+          cook_time?: string
+          servings?: string
+          difficulty?: string
+          category?: string
+          ingredients: Json
+          instructions: Json
+          source: "KOBIRI" | "THEMEALDB" | "AI"
+        }
+        Update: {
+          id?: string
+          created_at?: string
+          user_id?: string
+          name?: string
+          description?: string
+          image_url?: string
+          prep_time?: string
+          cook_time?: string
+          servings?: string
+          difficulty?: string
+          category?: string
+          ingredients?: Json
+          instructions?: Json
+          source?: "KOBIRI" | "THEMEALDB" | "AI"
+        }
+        Relationships: [
+          {
+            foreignKeyName: "recipes_user_id_fkey"
+            columns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
       market_list_items: {
         Row: {
           id: string

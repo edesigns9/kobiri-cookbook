@@ -5,6 +5,11 @@ import path from "path"
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react()],
+  server: {
+    port: 3333, // Use an unusual port to avoid conflicts
+    strictPort: false, // Allow fallback to another port if 3333 is in use
+    host: true, // Listen on all addresses
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "."),

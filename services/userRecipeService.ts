@@ -2,6 +2,7 @@ import type { Recipe, RecipeIngredient, RecipeInstruction } from '../types';
 import { CURATED_RECIPES } from '../constants';
 import { supabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
+import type { Json } from '../lib/database.types';
 
 /**
  * Generates a placeholder image URL from placehold.co based on the recipe name.
@@ -29,8 +30,15 @@ function generatePlaceholderImage(name: string): string {
  */
 function transformDbRecipeToAppRecipe(dbRecipe: any): Recipe {
     return {
-        ...dbRecipe,
         id: dbRecipe.id,
+        name: dbRecipe.name,
+        description: dbRecipe.description,
+        imageUrl: dbRecipe.image_url,
+        prepTime: dbRecipe.prep_time,
+        cookTime: dbRecipe.cook_time,
+        servings: dbRecipe.servings,
+        difficulty: dbRecipe.difficulty,
+        category: dbRecipe.category,
         ingredients: (dbRecipe.ingredients || []) as RecipeIngredient[],
         instructions: (dbRecipe.instructions || []) as RecipeInstruction[],
         source: 'KOBIRI',
@@ -124,13 +132,18 @@ export async function addUserRecipe(data: Omit<Recipe, 'id' | 'source' | 'imageU
     // Try to save to Supabase if available
     try {
         const newRecipePayload = {
-            ...data,
             user_id: user.id,
-            source: 'KOBIRI',
+            name: data.name,
+            description: data.description,
             image_url: newRecipe.imageUrl,
+            source: 'KOBIRI' as const,
+            prep_time: data.prepTime,
+            cook_time: data.cookTime,
+            servings: data.servings,
             difficulty: data.difficulty || 'Medium',
-            ingredients: data.ingredients,
-            instructions: data.instructions,
+            category: data.category,
+            ingredients: data.ingredients as unknown as Json,
+            instructions: data.instructions as unknown as Json,
         };
 
         const { data: savedRecipe, error } = await supabase

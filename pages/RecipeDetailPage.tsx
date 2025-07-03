@@ -90,8 +90,9 @@ const RecipeDetailPage: React.FC = () => {
         setIsEstimating(false);
 
         try {
-            // First check if we have the recipe in location state (for AI recipes)
+            // First check if we have the recipe in location state
             if (location.state?.recipe) {
+                console.log("Loading recipe from location state:", location.state.recipe);
                 setRecipe(location.state.recipe);
                 setIsLoading(false);
                 return;
@@ -101,10 +102,14 @@ const RecipeDetailPage: React.FC = () => {
             let fetchedRecipe = null;
             const normalizedSource = source?.toUpperCase();
             
+            console.log(`Fetching recipe with id: ${id} from source: ${normalizedSource}`);
+            
             if (normalizedSource === 'KOBIRI') {
                 fetchedRecipe = await getKobiriRecipeById(id);
+                console.log("Fetched Kobiri recipe:", fetchedRecipe);
             } else if (normalizedSource === 'THEMEALDB') {
                 fetchedRecipe = await getRecipeDetails(id);
+                console.log("Fetched TheMealDB recipe:", fetchedRecipe);
             }
 
             if (fetchedRecipe) {
