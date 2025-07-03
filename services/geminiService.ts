@@ -147,7 +147,7 @@ export async function generateRecipesFromIngredients(ingredients: string): Promi
   }
   
   // Use the model name that was working before
-  const model = "gemini-2.5-pro-preview";
+  const model = "gemini-2.5-pro";
   console.log("Using model:", model); // Debug: Log which model we're using
   const prompt = `You are a creative and expert chef. Based on the following ingredients: "${ingredients}", generate 3 unique and delicious recipe ideas. For each recipe, provide a unique 'id' (like 'ai-recipe-1'), a 'name', a brief 'description', an estimated 'prepTime', 'cookTime', 'servings', a detailed list of 'ingredients' (with name and amount), and step-by-step 'instructions'. The response MUST be a valid JSON array of objects. Do not include any text outside of the JSON array. The JSON structure for each recipe object should be: { "id": string, "name": string, "description": string, "prepTime": string, "cookTime": string, "servings": string, "ingredients": [{ "name": string, "amount": string }], "instructions": [{ "step": number, "description": string }] }`;
 
@@ -229,7 +229,7 @@ export async function getCookingAssistantResponse(recipeName: string, currentSte
         throw new Error("Kọbiri AI assistant is not available.");
     }
 
-    const model = "gemini-2.5-pro-preview";
+    const model = "gemini-2.5-pro";
     console.log("Using model for assistant:", model);
     const systemInstruction = "You are an expert, friendly, and encouraging cooking assistant named Kọbiri Chef. You are helping a user cook a dish. Your answers must be concise, helpful, directly related to the cooking question, and under 50 words. Be encouraging and patient. Do not start your response with phrases like 'Of course!' or 'Great question!'. Get straight to the answer.";
     const contents = `Context: The user is making "${recipeName}". They are on the step: "${currentStep}". The user's question is: "${question}".`;
@@ -269,7 +269,7 @@ export async function enhanceInstruction(recipeName: string, instruction: string
         throw new Error("Kọbiri AI assistant is not available.");
     }
 
-    const model = "gemini-2.5-pro-preview";
+    const model = "gemini-2.5-pro";
     console.log("Using model for enhancing instruction:", model);
     const systemInstruction = "You are an expert, world-class chef named Kọbiri Chef. Your role is to help a home cook by clarifying a specific instruction from a recipe. You are patient, detailed, and encouraging. Your explanations should be easy for a beginner to understand. Use formatting like bullet points or numbered lists if it helps break down the step.";
     const contents = `I am cooking "${recipeName}". I need help with this step: "${instruction}". Please enhance this instruction for me. Break it down into more manageable parts, explain any tricky techniques, and offer tips for success. Do not just repeat the instruction.`;
@@ -312,7 +312,7 @@ export async function estimateRecipeTimes(
         throw new Error("Kọbiri AI service is not available.");
     }
 
-    const model = "gemini-2.5-pro-preview";
+    const model = "gemini-2.5-pro";
     console.log("Using model for time estimation:", model);
     const ingredientsString = ingredients.map(ing => `${ing.amount} ${ing.name}`).join(', ');
     const instructionsString = instructions.map(inst => `Step ${inst.step}: ${inst.description}`).join(' ');
@@ -372,7 +372,7 @@ export async function organizeShoppingList(itemNames: string[]): Promise<Record<
         throw new Error("Kọbiri AI service is not available.");
     }
 
-    const model = "gemini-2.5-pro-preview";
+    const model = "gemini-2.5-pro";
     console.log("Using model for shopping list organization:", model);
     
     const prompt = `You are a helpful shopping assistant. Organize this list of food items into logical categories like "Produce", "Dairy", "Meat", "Grains", "Spices", etc. Return ONLY a JSON object where each key is a category and each value is an array of items belonging to that category. Items: ${itemNames.join(', ')}`;

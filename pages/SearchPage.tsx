@@ -9,6 +9,14 @@ import { searchRecipes, getRecipesByCategory } from '../services/spoonacularServ
 import { getAllKobiriRecipes } from '../services/userRecipeService';
 import type { RecipeSummary } from '../types';
 
+const loadingMessages = [
+  "Searching our curated recipe collection...",
+  "Exploring global recipe databases...",
+  "Looking for the tastiest results...",
+  "Sorting the recipes by deliciousness...",
+  "Just a moment, finding your next favorite meal...",
+];
+
 const SearchPage: React.FC = () => {
   const [searchParams] = useSearchParams();
   const query = searchParams.get('q') || '';
@@ -17,6 +25,24 @@ const SearchPage: React.FC = () => {
   const [results, setResults] = useState<RecipeSummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (isLoading) {
+      setLoadingMessage(loadingMessages[0]);
+      let messageIndex = 0;
+      interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[messageIndex]);
+      }, 2500);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     const performSearch = async () => {
@@ -29,7 +55,7 @@ const SearchPage: React.FC = () => {
         if (category) {
             finalResults = await getRecipesByCategory(category);
         } else if (query) {
-            const allCuratedRecipes = getAllKobiriRecipes();
+            const allCuratedRecipes = await getAllKobiriRecipes();
              // Filter local curated recipes for text search
             const curatedResults = allCuratedRecipes
               .filter(recipe => recipe.name.toLowerCase().includes(query.toLowerCase()))
@@ -86,7 +112,14 @@ const SearchPage: React.FC = () => {
       </section>
 
       <section>
-        {isLoading && <Spinner />}
+        {isLoading && (
+          <div className="text-center p-8">
+            <Spinner />
+            <p className="text-lg text-muted-foreground mt-4 font-semibold animate-pulse">
+              {loadingMessage}
+            </p>
+          </div>
+        )}
         
         {!isLoading && !error && results.length > 0 && (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">

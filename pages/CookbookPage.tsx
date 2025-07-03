@@ -1,107 +1,40 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
-import RecipeCard from '../components/RecipeCard';
+import { useCookbook } from '../hooks/useCookbook';
+import RecipeListSection from '../components/RecipeListSection';
 import BackButton from '../components/BackButton';
 import { Button } from '../components/ui/button';
 import { PlusCircle } from 'lucide-react';
-import type { Recipe, RecipeSummary } from '../types';
-import { getAllKobiriRecipes } from '../services/userRecipeService';
 import Spinner from '../components/Spinner';
-import { CURATED_RECIPES } from '../constants';
+import type { RecipeSummary } from '../types';
+
+const loadingMessages = [
+  "Opening your personal cookbook...",
+  "Finding your saved recipes...",
+  "Dusting off your recipe cards...",
+  "Getting your creations ready...",
+  "Organizing your culinary collection...",
+];
 
 const CookbookPage: React.FC = () => {
-  const { user, favorites, isLoggedIn } = useAuth();
-  const [allRecipes, setAllRecipes] = useState<Recipe[]>([]);
-  const [favoriteRecipes, setFavoriteRecipes] = useState<RecipeSummary[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { isLoggedIn } = useAuth();
+  const { isLoading, error, userCreations, favoriteRecipes } = useCookbook();
+  const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
 
   useEffect(() => {
-    const fetchRecipes = async () => {
-      if (!isLoggedIn) {
-        // When logged out, there are no user-created recipes to show.
-        // We can just show favorites from TheMealDB which might be in the auth context state.
-        const themealdbFavorites = favorites.filter(fav => fav.source === 'THEMEALDB');
-        setFavoriteRecipes(themealdbFavorites);
-        setIsLoading(false);
-        return;
-      }
-      
-      // This part runs only for logged-in users
-      setIsLoading(true);
-      setError(null);
-      
-      try {
-        // 1. Fetch all user-created recipes from Supabase and static curated recipes.
-        const kobiriRecipes = await getAllKobiriRecipes(user);
-        
-        // 2. Create a lookup map for all Kobiri recipes
-        const kobiriRecipeMap = new Map<string, Recipe>();
-        kobiriRecipes.forEach(recipe => {
-          kobiriRecipeMap.set(String(recipe.id), recipe);
-        });
-        
-        // 3. Process favorites to ensure they have valid recipe references
-        const processedFavorites: RecipeSummary[] = [];
-        const seenRecipeIds = new Set<string>();
-        
-        // First process KOBIRI favorites
-        favorites.forEach(fav => {
-          // Create a unique ID to avoid duplicates
-          const uniqueId = `${fav.source}-${fav.recipe_id}`;
-          
-          // Skip if we've already processed this recipe
-          if (seenRecipeIds.has(uniqueId)) return;
-          
-          // For KOBIRI recipes, make sure they exist in our data
-          if (fav.source === 'KOBIRI') {
-            const recipe = kobiriRecipeMap.get(fav.recipe_id);
-            if (recipe) {
-              processedFavorites.push({
-                id: fav.recipe_id,
-                title: recipe.name, // Use actual recipe name from the data
-                image: recipe.imageUrl, // Use actual recipe image from the data
-                source: 'KOBIRI',
-                category: recipe.category,
-                // Include the full recipe data to avoid loading issues
-                recipe: recipe
-              });
-              seenRecipeIds.add(uniqueId);
-            }
-          } else {
-            // For other sources like THEMEALDB, keep as is
-            processedFavorites.push({
-              id: fav.recipe_id,
-              title: fav.title,
-              image: fav.image,
-              source: fav.source
-            });
-            seenRecipeIds.add(uniqueId);
-          }
-        });
-        
-        // 4. Set the state for the page to render.
-        const userCreatedRecipes = kobiriRecipes.filter(r => !CURATED_RECIPES.some(cr => cr.id === r.id));
-        setAllRecipes(userCreatedRecipes);
-        setFavoriteRecipes(processedFavorites);
-
-      } catch (err) {
-        setError("Failed to load your cookbook. Please try again.");
-        console.error(err);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    // We depend on both `user` and `favorites` state to render the full cookbook.
-    if (isLoggedIn) {
-      fetchRecipes();
-    } else {
-      setIsLoading(false); // Not logged in, nothing to fetch.
+    let interval: NodeJS.Timeout | undefined;
+    if (isLoading) {
+      let messageIndex = 0;
+      interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[messageIndex]);
+      }, 2500);
     }
-
-  }, [user, favorites, isLoggedIn]);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isLoading]);
 
   if (!isLoggedIn) {
     return (
@@ -117,8 +50,9 @@ const CookbookPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center items-center h-64">
+      <div className="flex justify-center items-center h-64 flex-col">
         <Spinner />
+        <p className="text-lg text-muted-foreground mt-4 font-semibold animate-pulse">{loadingMessage}</p>
       </div>
     );
   }
@@ -126,6 +60,15 @@ const CookbookPage: React.FC = () => {
   if (error) {
     return <div className="text-center text-red-500 py-16">{error}</div>;
   }
+
+  const userCreationsSummary: RecipeSummary[] = userCreations.map(r => ({
+    id: r.id,
+    title: r.name,
+    image: r.imageUrl,
+    source: 'KOBIRI',
+    isCurated: false,
+    recipe: r,
+  }));
 
   return (
     <div className="space-y-8">
@@ -143,43 +86,33 @@ const CookbookPage: React.FC = () => {
           </Button>
         </div>
         <p className="text-muted-foreground">
-          {favoriteRecipes.length > 0
-            ? `You have ${favoriteRecipes.length} saved recipe(s).`
-            : "Your cookbook is empty. Start exploring and save some recipes!"}
+          {`You have ${favoriteRecipes.length} saved recipe(s) and ${userCreations.length} creation(s).`}
         </p>
       </section>
 
-      <section>
-        <h2 className="text-2xl font-semibold border-b pb-2 mb-6">My Saved Recipes</h2>
-        {favoriteRecipes.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {favoriteRecipes.map(recipe => (
-              <RecipeCard key={`${recipe.source}-${recipe.id}`} recipe={recipe} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 bg-gray-50 dark:bg-gray-900 rounded-lg">
+      <RecipeListSection
+        title="My Saved Recipes"
+        recipes={favoriteRecipes}
+        emptyState={
+          <>
             <p className="text-muted-foreground">You haven't saved any recipes yet.</p>
             <p className="text-sm text-muted-foreground mt-2">Explore recipes and click the heart icon to save them here.</p>
-          </div>
-        )}
-      </section>
+          </>
+        }
+      />
 
-      <section className="mt-12">
-        <h2 className="text-2xl font-semibold border-b pb-2 mb-6">My Creations</h2>
-        {allRecipes.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {allRecipes.map(recipe => (
-              <RecipeCard key={`kobiri-${recipe.id}`} recipe={{...recipe, title: recipe.name, image: recipe.imageUrl, isCurated: true, source: 'KOBIRI'}} />
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-10 bg-gray-50 dark:bg-gray-900 rounded-lg">
-            <p className="text-muted-foreground">You haven't created any recipes yet.</p>
-            <Button variant="link" asChild><Link to="/add-recipe">Create your first recipe now!</Link></Button>
-          </div>
-        )}
-      </section>
+      <div className="mt-12">
+        <RecipeListSection
+          title="My Creations"
+          recipes={userCreationsSummary}
+          emptyState={
+            <>
+              <p className="text-muted-foreground">You haven't created any recipes yet.</p>
+              <Button variant="link" asChild><Link to="/add-recipe">Create your first recipe now!</Link></Button>
+            </>
+          }
+        />
+      </div>
     </div>
   );
 };

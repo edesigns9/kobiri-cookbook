@@ -10,6 +10,14 @@ import { getAfricanRecipes, getRandomRecipes, getCategories } from '../services/
 import { getAllKobiriRecipes } from '../services/userRecipeService';
 import type { RecipeSummary, Category } from '../types';
 
+const loadingMessages = [
+  "Gathering today's featured recipes...",
+  "Fetching fresh ideas from our kitchen...",
+  "Setting the table for you...",
+  "Exploring delicious new categories...",
+  "Uncovering hidden culinary gems...",
+];
+
 const HomePage: React.FC = () => {
   const [curatedRecipes, setCuratedRecipes] = useState<RecipeSummary[]>([]);
   const [discoverRecipes, setDiscoverRecipes] = useState<RecipeSummary[]>([]);
@@ -17,6 +25,24 @@ const HomePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadMoreLoading, setIsLoadMoreLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
+
+  useEffect(() => {
+    let interval: NodeJS.Timeout | undefined;
+    if (isLoading) {
+      setLoadingMessage(loadingMessages[0]);
+      let messageIndex = 0;
+      interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[messageIndex]);
+      }, 2500);
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isLoading]);
 
   useEffect(() => {
     const fetchInitialData = async () => {
@@ -111,7 +137,14 @@ const HomePage: React.FC = () => {
         <SearchBar />
       </section>
 
-      {isLoading && <Spinner />}
+      {isLoading && (
+        <div className="text-center p-8">
+          <Spinner />
+          <p className="text-lg text-muted-foreground mt-4 font-semibold animate-pulse">
+            {loadingMessage}
+          </p>
+        </div>
+      )}
 
       {error && !isLoading && (
         <div className="text-center py-10">

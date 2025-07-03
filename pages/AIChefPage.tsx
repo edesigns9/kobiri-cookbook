@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -11,12 +10,38 @@ import { generateRecipesFromIngredients } from '../services/geminiService';
 import type { RecipeSummary } from '../types';
 import { Wand2 } from 'lucide-react';
 
+const loadingMessages = [
+  "Sending your ingredients to the Kọbiri Chef...",
+  "Our chef is whisking up some creative ideas...",
+  "Thinking of tasty flavor combinations...",
+  "Crafting unique recipes just for you...",
+  "Almost there, just plating your recipes...",
+];
+
 const AIChefPage: React.FC = () => {
   const { isLoggedIn } = useAuth();
   const [ingredients, setIngredients] = useState('');
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
+
+  React.useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isLoading) {
+      setLoadingMessage(loadingMessages[0]); // Reset to the first message on new load
+      let messageIndex = 0;
+      interval = setInterval(() => {
+        messageIndex = (messageIndex + 1) % loadingMessages.length;
+        setLoadingMessage(loadingMessages[messageIndex]);
+      }, 3000); // Change message every 3 seconds
+    }
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isLoading]);
 
   const generateRecipes = useCallback(async (ingredientList: string) => {
     if (!ingredientList.trim()) {
@@ -103,7 +128,14 @@ const AIChefPage: React.FC = () => {
         </CardContent>
       </Card>
       
-      {isLoading && <Spinner />}
+      {isLoading && (
+        <div className="text-center p-8">
+          <Spinner />
+          <p className="text-lg text-muted-foreground mt-4 font-semibold animate-pulse">
+            {loadingMessage}
+          </p>
+        </div>
+      )}
 
       {error && (
         <div className="text-center text-destructive font-semibold">
