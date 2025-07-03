@@ -1,9 +1,11 @@
-import React, { useEffect, Suspense, lazy } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import React, { useEffect, Suspense, lazy, useState } from 'react';
+import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import { Toaster } from './components/ui/sonner';
 import Header from './components/Header';
 import { testSupabaseConnection } from './lib/debug';
 import Spinner from './components/Spinner';
+import { useAuth } from './hooks/useAuth';
+import MobileMenu from './components/MobileMenu';
 
 const HomePage = lazy(() => import('./pages/HomePage'));
 const SearchPage = lazy(() => import('./pages/SearchPage'));
@@ -15,16 +17,32 @@ const AddRecipePage = lazy(() => import('./pages/AddRecipePage'));
 const MarketListPage = lazy(() => import('./pages/MarketListPage'));
 
 function App() {
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  useEffect(() => {
+    // Close mobile menu on route change
+    setIsMenuOpen(false);
+  }, [location.pathname]);
+
   useEffect(() => {
     // Run Supabase connection test on startup
     testSupabaseConnection().then(success => {
       console.log('Supabase connection test completed. Success:', success);
     });
   }, []);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate('/');
+  };
   
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header user={user} handleLogout={handleLogout} setIsMenuOpen={setIsMenuOpen} />
+      <MobileMenu isMenuOpen={isMenuOpen} setIsMenuOpen={setIsMenuOpen} user={user} handleLogout={handleLogout} />
       <main className="flex-1 container mx-auto px-4 py-6">
         <Suspense fallback={<div className="flex justify-center items-center h-64"><Spinner /></div>}>
           <Routes>
