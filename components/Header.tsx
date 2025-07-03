@@ -79,7 +79,7 @@ const Header: React.FC = () => {
       {isMenuOpen && (
         <div className="fixed inset-0 z-50 bg-black/60 animate-in fade-in-20 md:hidden" onClick={() => setIsMenuOpen(false)}>
           <div 
-            className="fixed top-0 right-0 bottom-0 h-full w-4/5 max-w-sm bg-card dark:bg-zinc-950 p-6 shadow-2xl animate-in slide-in-from-right-full"
+            className="fixed top-0 right-0 bottom-0 h-full w-4/5 max-w-sm bg-white dark:bg-zinc-900 p-6 shadow-2xl animate-in slide-in-from-right-full"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between mb-8">
