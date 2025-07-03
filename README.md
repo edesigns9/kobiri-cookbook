@@ -9,14 +9,16 @@ A React application for discovering, saving, and cooking recipes from around the
 3. Create a `.env.local` file in the root directory with the following content:
 ```
 # Supabase credentials
-VITE_SUPABASE_URL="https://dqrlwqchzhiipfxshgdo.supabase.co"
-VITE_SUPABASE_ANON_KEY="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRxcmx3cWNoemhpaXBmeHNoZ2RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE2ODMxMjY4NzUsImV4cCI6MTk5ODcwMjg3NX0.IpM0xvOKhbOZEPXzpWwGHsK2Mh9-f-YjYnEbc9KPBj8"
+VITE_SUPABASE_URL="your-supabase-url"
+VITE_SUPABASE_ANON_KEY="your-supabase-anon-key"
 
 # Google Gemini API key
 # Get your API key from https://aistudio.google.com/app/apikey
-VITE_GEMINI_API_KEY="your-gemini-api-key-here"
+VITE_GEMINI_API_KEY="your-gemini-api-key"
 ```
-4. Replace `your-gemini-api-key-here` with your actual Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+4. Replace the placeholder values with your actual API keys:
+   - Get Supabase credentials from your Supabase project settings
+   - Get your Gemini API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
 5. Run the development server: `npm run dev`
 
 ## Features
