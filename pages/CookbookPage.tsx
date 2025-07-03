@@ -8,6 +8,7 @@ import { Button } from '../components/ui/button';
 import { PlusCircle } from 'lucide-react';
 import Spinner from '../components/Spinner';
 import type { RecipeSummary } from '../types';
+import { useTitle } from '../hooks/useTitle';
 
 const loadingMessages = [
   "Opening your personal cookbook...",
@@ -18,6 +19,7 @@ const loadingMessages = [
 ];
 
 const CookbookPage: React.FC = () => {
+  useTitle('My Cookbook');
   const { isLoggedIn } = useAuth();
   const { isLoading, error, userCreations, favoriteRecipes } = useCookbook();
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);

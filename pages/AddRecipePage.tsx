@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../co
 import { PlusCircle, XCircle } from 'lucide-react';
 import type { Recipe, RecipeIngredient, RecipeInstruction } from '../types';
 import { addUserRecipe } from '../services/userRecipeService';
+import { useTitle } from '../hooks/useTitle';
 
 const initialRecipeState: Omit<Recipe, 'id' | 'source' | 'imageUrl' | 'isCurated'> = {
     name: '',
@@ -25,6 +26,7 @@ const initialRecipeState: Omit<Recipe, 'id' | 'source' | 'imageUrl' | 'isCurated
 };
 
 const AddRecipePage: React.FC = () => {
+    useTitle('Add Recipe');
     const [recipeData, setRecipeData] = useState(initialRecipeState);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const navigate = useNavigate();

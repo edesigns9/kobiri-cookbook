@@ -9,6 +9,8 @@ import { Button } from '../components/ui/button';
 import { getAfricanRecipes, getRandomRecipes, getCategories } from '../services/spoonacularService';
 import { getAllKobiriRecipes } from '../services/userRecipeService';
 import type { RecipeSummary, Category } from '../types';
+import { useTitle } from '../hooks/useTitle';
+import { Loader2 } from 'lucide-react';
 
 const loadingMessages = [
   "Gathering today's featured recipes...",
@@ -19,6 +21,7 @@ const loadingMessages = [
 ];
 
 const HomePage: React.FC = () => {
+  useTitle('Home');
   const [curatedRecipes, setCuratedRecipes] = useState<RecipeSummary[]>([]);
   const [discoverRecipes, setDiscoverRecipes] = useState<RecipeSummary[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -198,7 +201,14 @@ const HomePage: React.FC = () => {
               </div>
               <div className="text-center mt-8">
                 <Button onClick={handleLoadMore} disabled={isLoadMoreLoading}>
-                  {isLoadMoreLoading ? 'Loading...' : 'Load More Recipes'}
+                  {isLoadMoreLoading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More Recipes'
+                  )}
                 </Button>
               </div>
             </section>

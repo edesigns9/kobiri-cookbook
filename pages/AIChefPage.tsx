@@ -9,6 +9,7 @@ import RecipeCard from '../components/RecipeCard';
 import { generateRecipesFromIngredients } from '../services/geminiService';
 import type { RecipeSummary } from '../types';
 import { Wand2 } from 'lucide-react';
+import { useTitle } from '../hooks/useTitle';
 
 const loadingMessages = [
   "Sending your ingredients to the Kọbiri Chef...",
@@ -19,6 +20,7 @@ const loadingMessages = [
 ];
 
 const AIChefPage: React.FC = () => {
+  useTitle('Kọbiri Chef');
   const { isLoggedIn } = useAuth();
   const [ingredients, setIngredients] = useState('');
   const [recipes, setRecipes] = useState<RecipeSummary[]>([]);

@@ -8,6 +8,7 @@ import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
+import { useTitle } from '../hooks/useTitle';
 
 const GoogleIcon = () => (
   <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512">
@@ -23,6 +24,8 @@ const LoginPage: React.FC = () => {
   
   const { signInWithPassword, signUp, signInWithGoogle } = useAuth();
   const navigate = useNavigate();
+
+  useTitle(isSignUp ? 'Sign Up' : 'Login');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

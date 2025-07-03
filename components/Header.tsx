@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Button } from './ui/button';
-import { ChefHat, Sparkles, ShoppingCart, Bookmark, LogIn, LogOut, Menu, X } from 'lucide-react';
+import { Sparkles, ShoppingCart, Bookmark, LogIn, LogOut, Menu, X } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navLinks = [
@@ -44,8 +44,8 @@ const Header: React.FC = () => {
     <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-40 w-full border-b">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center gap-2 text-2xl font-bold">
-            <ChefHat className="w-7 h-7 text-primary" />
+          <Link to="/" className="flex items-center gap-1 text-2xl font-bold">
+            <img src="/assets/Kobiri-pan.svg" alt="Kọbiri Logo" className="w-14 h-14" />
             <span>Kọbiri</span>
           </Link>
           

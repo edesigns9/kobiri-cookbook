@@ -13,12 +13,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge';
 import { Button } from '../components/ui/button';
 import { Mic, ShoppingCart } from 'lucide-react';
+import { useTitle } from '../hooks/useTitle';
 
 const RecipeDetailPage: React.FC = () => {
   const { user, isLoggedIn } = useAuth();
   const { addRecipeIngredientsToList, isRecipeOnList } = useMarketList();
   const { recipe, isLoading, isEstimating, error } = useRecipeDetail();
   const [isGuidedCooking, setIsGuidedCooking] = React.useState(false);
+
+  useTitle(recipe ? recipe.name : 'Recipe Detail');
 
   const isSpeechApiSupported = useMemo(() => {
     return !!(window.SpeechRecognition || window.webkitSpeechRecognition) && !!window.speechSynthesis;

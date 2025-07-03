@@ -1,4 +1,3 @@
-
 import React, { useState, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -11,8 +10,10 @@ import { Checkbox } from '../components/ui/checkbox';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card';
 import { ShoppingCart, Sparkles, Trash2, PlusCircle, Loader2 } from 'lucide-react';
 import { cn } from '../lib/utils';
+import { useTitle } from '../hooks/useTitle';
 
 const MarketListPage: React.FC = () => {
+    useTitle('Market List');
     const { isLoggedIn } = useAuth();
     const { list, addManualItem, toggleItemChecked, removeItem, clearList, organizeList, isOrganizing } = useMarketList();
     const [manualItem, setManualItem] = useState('');

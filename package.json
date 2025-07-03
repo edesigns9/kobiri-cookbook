@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite --port 0",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "optimize-svg": "svgo -f public/assets"
   },
   "dependencies": {
     "@google/genai": "0.12.0",
@@ -26,8 +27,9 @@
   "devDependencies": {
     "@types/node": "^22.14.0",
     "@types/react": "^18.3.3",
-    "@types/react-dom": "^19.1.6",
+    "@types/react-dom": "^18.2.19",
     "@vitejs/plugin-react": "^4.3.1",
+    "svgo": "^3.2.0",
     "typescript": "~5.7.2",
     "vite": "^6.2.0"
   }

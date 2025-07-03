@@ -8,6 +8,7 @@ import BackButton from '../components/BackButton';
 import { searchRecipes, getRecipesByCategory } from '../services/spoonacularService';
 import { getAllKobiriRecipes } from '../services/userRecipeService';
 import type { RecipeSummary } from '../types';
+import { useTitle } from '../hooks/useTitle';
 
 const loadingMessages = [
   "Searching our curated recipe collection...",
@@ -26,6 +27,14 @@ const SearchPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadingMessage, setLoadingMessage] = useState(loadingMessages[0]);
+
+  const getPageTitle = () => {
+      if (category) return `Category: ${category}`;
+      if (query) return `Results for "${query}"`;
+      return 'Search Results';
+  }
+
+  useTitle(getPageTitle());
 
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -91,12 +100,6 @@ const SearchPage: React.FC = () => {
       setIsLoading(false);
     }
   }, [query, category]);
-
-  const getPageTitle = () => {
-      if (category) return `Category: ${category}`;
-      if (query) return `Results for "${query}"`;
-      return 'Search Results';
-  }
 
   return (
     <div className="space-y-8">
