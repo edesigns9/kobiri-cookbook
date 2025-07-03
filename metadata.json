@@ -1,0 +1,8 @@
+{
+  "name": "Kọbiri - Your Global Cookbook",
+  "description": "A beautiful, intuitive, and fast recipe app that serves as a global cookbook. It has a special focus on celebrating and authenticating Nigerian and South African cuisine, while seamlessly integrating a vast library of recipes from around the world.",
+  "requestFramePermissions": [
+    "microphone"
+  ],
+  "prompt": ""
+}
